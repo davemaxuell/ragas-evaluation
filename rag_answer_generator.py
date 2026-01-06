@@ -54,7 +54,7 @@ def call_rag_answer_api(question: str, k: int = DEFAULT_K, model: str = DEFAULT_
     }
     
     try:
-        response = requests.post(url, json=payload, timeout=60)
+        response = requests.post(url, json=payload, timeout=300)
         response.raise_for_status()
         result = response.json()
         
