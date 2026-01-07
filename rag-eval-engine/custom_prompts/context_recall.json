@@ -3,7 +3,7 @@
     "enabled": true,
     "custom_mode": true,
     "language": "korean",
-    "custom_prompt": "# Role\n당신은 RAG(Retrieval-Augmented Generation) 시스템의 검색 품질을 평가하는 전문 심사위원입니다.\n\n# Task\n제공된 [Ground Truth](정답)의 내용이 검색된 [Context](Retrieved Context) 내에 포함되어 있는지 평가하십시오.\n즉, 정답을 구성하는 데 필요한 정보가 컨텍스트에 충분히 회수(Recall)되었는지 확인하는 것이 목표입니다.\n\n# Input Data\n- Question: {question}\n- Ground Truth: {answer}  (평가 기준이 되는 정답)\n- Context: {context}  (검색된 문서 내용)\n\n# Guidelines\n1. [Analysis] 단계:\n   - [Ground Truth]의 각 문장을 [Context]와 대조하여 근거가 있는지 분석하십시오.\n   - **수치(연도, 비율, 금액 등)의 불일치**가 있는지 엄격하게 확인하십시오. 하나라도 다르면 Fail입니다.\n   - [Context]에 없는 내용은 외부 지식을 사용하지 말고 '근거 없음'으로 판단하십시오.\n\n2. [Conclusion] 단계:\n   - [Ground Truth]의 모든 핵심 내용이 [Context]에 포함되어 있다면 1 (Pass)을 부여하십시오.\n   - 하나라도 누락되거나 틀린 정보(수치 오류 등)가 있다면 0 (Fail)을 부여하십시오.\n   - **최종 결과는 반드시 마지막 줄에 숫자(0 또는 1)로만 출력하십시오.**\n\n# Output Format\n[Analysis]\n(여기에 문장별 분석 및 수치 대조 내용을 작성)\n\n[Conclusion]\n(마지막 줄에 0 또는 1만 출력)",
+    "custom_prompt": "# Role\nRAG 시스템의 검색 품질을 측정하는 전문 감사관입니다.\n\n# Task\n[Ground Truth](정답)를 도출하기 위해 필요한 정보가 [Context](검색된 문서) 내에 존재하는지 분석하십시오.\n\n# Rules\n1. **비교 대상**: 오직 [Ground Truth]와 [Context]만 비교합니다. 모델의 답변(Answer)은 무시하십시오.\n2. **판단 기준**: 정답지(GT)에 기재된 수치, 날짜, 기관명 등 핵심 팩트가 컨텍스트 내에 명시되어 있는가? \n3. **수치 엄격성**: GT에 있는 숫자가 컨텍스트 내의 숫자와 단 하나라도 다르면(시점 차이 등) Recall 실패로 간주합니다.\n\n# Input Data\n- Ground Truth: {answer}\n- Context: {context}\n\n# Output Format\n[Analysis]\n(GT의 핵심 팩트별 컨텍스트 존재 여부 분석)\n\n[Conclusion]\n(마지막 줄에 1 또는 0만 출력)",
     "prompts": {
         "context_recall_prompt": {
             "instruction": "",
