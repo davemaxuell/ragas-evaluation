@@ -42,32 +42,7 @@ CUSTOM_PROMPTS_DIR = os.path.join(os.path.dirname(__file__), "custom_prompts")
 
 # AspectCritic 프롬프트 (Multi-turn 대화 품질 평가)
 # AspectCritic 프롬프트 (Session-level: 다중 턴 대화 품질 평가)
-ASPECT_CRITIC_PROMPT = """당신은 다중 턴 대화의 흐름과 품질을 평가하는 전문 심사위원입니다.
-
-아래는 사용자와 AI 간의 대화 세션입니다:
-
-{conversation}
-
-# Evaluation Criteria (Session-level)
-전체 대화 세션을 분석하여 다음 세 가지 요소에 문제가 없는지 평가하십시오.
-
-1. Contradiction (모순 여부):
-   - AI의 답변들 간에 서로 상충되거나 모순되는 내용이 없는가?
-2. Retention (문맥 유지):
-   - AI가 이전 턴의 정보나 사용자의 지시사항을 끝까지 기억하고 유지하는가?
-3. Redundancy (중복 여부):
-   - AI가 불필요하게 동일한 정보를 반복하거나, 이전 답변을 단순히 복사해서 붙여넣지 않는가?
-
-# Decision Rules
-- 위 세 가지 기준(Contradiction, Retention, Redundancy) 중 **하나라도 문제가 발견되면 0 (Fail)**을 부여하십시오.
-- 모든 기준을 완벽하게 충족하며 대화가 자연스럽게 이어졌다면 1 (Pass)을 부여하십시오.
-
-# Output Format
-[Analysis]
-(위 3가지 기준에 대한 간략한 분석)
-
-[Conclusion]
-(마지막 줄에 1 또는 0만 출력)"""
+# AspectCritic 프롬프트는 custom_prompts/aspect_critic.json에서 로드됩니다.
 
 
 # ============================================================
@@ -254,7 +229,7 @@ def evaluate_answer_correctness(answer: str, ground_truth: str, prompt_template:
         return 0.0  # 오류 시 0점
 
 
-def evaluate_aspect_critic(turns: list) -> int:
+def evaluate_aspect_critic(turns: list, prompt_template: str) -> int:
     """AspectCritic 평가: 다중 턴 대화의 전반적인 품질 (0 또는 1)"""
     try:
         # 대화 내용을 문자열로 변환 (RAG_answer 사용)
@@ -268,7 +243,7 @@ def evaluate_aspect_critic(turns: list) -> int:
         
         conversation = "\n\n".join(conversation_parts)
         
-        formatted_prompt = ASPECT_CRITIC_PROMPT.format(conversation=conversation)
+        formatted_prompt = prompt_template.format(conversation=conversation)
         
         # Reasoning 포함되므로 max_tokens 증가
         result_text = call_api_with_retry(formatted_prompt, max_tokens=500)
@@ -330,7 +305,8 @@ def evaluate_json_file(input_path: str, output_path: str = None):
         answer_correctness_prompt = load_custom_prompt("answer_correctness")
         print("  ✓ AnswerCorrectness 프롬프트 로드 완료 (RAG_answer vs answer)")
         
-        print("  ✓ AspectCritic 프롬프트 (내장) 준비 완료")
+        aspect_critic_prompt = load_custom_prompt("aspect_critic")
+        print("  ✓ AspectCritic 프롬프트 로드 완료")
         
     except Exception as e:
         print(f"  ✗ 프롬프트 로드 실패: {e}")
@@ -454,7 +430,7 @@ def evaluate_json_file(input_path: str, output_path: str = None):
         
         # Multi-turn인 경우 AspectCritic 평가 추가
         if is_multi_turn:
-            aspect_score = evaluate_aspect_critic(turns)
+            aspect_score = evaluate_aspect_critic(turns, aspect_critic_prompt)
             item_avg["aspect_critic"] = aspect_score
             all_scores["aspect_critic"].append(aspect_score)
             print(f"    [AspectCritic] = {aspect_score}")

@@ -1,0 +1,7 @@
+{
+    "metric_name": "aspect_critic",
+    "enabled": true,
+    "custom_mode": true,
+    "language": "korean",
+    "custom_prompt": "# Role\n다중 턴(Multi-turn) 대화의 논리적 흐름과 지식 누적 품질을 평가하는 전문 심사위원입니다.\n\n# Task\n[Conversation] 세션 전체를 분석하여 지식 관리 능력을 평가하십시오.\n\n# Evaluation Criteria (Session-level)\n1. **Contradiction (모순)**: 현재 답변이 이전 턴에서 제공한 수치나 논리와 상충하는가? (예: 앞서 1.6%라 하고 지금 2.5%라 함)\n2. **Retention (유지)**: 사용자가 처음에 요구한 제약 조건(예: '단위는 bp로')을 끝까지 유지하는가?\n3. **Redundancy (중복)**: 새로운 정보 없이 이전 답변을 단순히 반복하여 대화를 정체시키는가?\n\n# Decision Rules\n- 위 3가지 기준 중 **하나라도 결함(특히 모순)이 발견되면 0 (Fail)**을 부여하십시오.\n- 모든 맥락이 일관되고 정보가 점진적으로 제공된다면 1 (Pass)을 부여하십시오.\n\n# Output Format\n[Analysis]\n(모순, 유지, 중복 여부에 대한 세부 분석)\n\n[Conclusion]\n(마지막 줄에 1 또는 0만 출력)"
+}
