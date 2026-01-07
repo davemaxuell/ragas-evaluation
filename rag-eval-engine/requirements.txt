@@ -1,0 +1,8 @@
+pandas
+datasets
+flask
+langchain-openai
+openai
+python-dotenv
+ragas
+requests
