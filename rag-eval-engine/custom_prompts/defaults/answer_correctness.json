@@ -1,0 +1,16 @@
+{
+    "metric_name": "answer_correctness",
+    "description": "Measures if the answer matches the ground truth",
+    "prompts": {
+        "statement_generator_prompt": {
+            "purpose": "Extracts statements from answer and ground truth for comparison",
+            "instruction": "Given a question and an answer, analyze the complexity of each sentence in the answer. Break down each sentence into one or more fully understandable statements. Ensure that no pronouns are used in any statement. Format the outputs in JSON.",
+            "examples_count": 1
+        },
+        "correctness_prompt": {
+            "purpose": "Classifies statements as TP/FP/FN for F1 calculation",
+            "instruction": "Given a ground truth and an answer statements, analyze each statement and classify them in one of the following categories: TP (true positive): statements that are present in answer that are also directly supported by the one or more statements in ground truth, FP (false positive): statements present in the answer but not directly supported by any statement in ground truth, FN (false negative): statements found in the ground truth but not present in answer. Each statement can only belong to one of the categories. Provide a reason for each classification.",
+            "examples_count": 2
+        }
+    }
+}

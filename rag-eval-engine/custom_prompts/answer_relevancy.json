@@ -1,0 +1,19 @@
+{
+    "metric_name": "answer_relevancy",
+    "enabled": true,
+    "custom_mode": true,
+    "language": "korean",
+    "custom_prompt": "# Role\n당신은 RAG(Retrieval-Augmented Generation) 시스템의 답변이 사용자의 질문과 얼마나 관련성이 있는지 평가하는 전문 심사위원입니다.\n\n# Task\n제공된 [Question]에 대해 [Answer]가 질문의 의도를 정확히 파악하고 적절한 정보를 제공하는지 관련성(Answer Relevancy)을 평가하십시오.\n\n# Evaluation Criteria\n- 1 (Pass): [Answer]가 질문의 핵심 요구사항을 직접적으로 해결하며, 질문의 의도와 논리적으로 긴밀하게 연결된 경우.\n- 0 (Fail): [Answer]가 질문의 요구를 충족하지 못하거나, 질문의 주제에서 벗어난 무관한 내용을 포함하거나, 질문에 대한 답변이 모호한 경우.\n\n# Rules\n- 질문의 '의도'에 부합하는 답변인지에 집중하여 평가하십시오.\n- 답변이 불완전하거나 질문과 동떨어진 정보를 포함하고 있다면 엄격하게 0으로 평가하십시오.\n- 반드시 0 또는 1의 숫자만 출력하십시오. 어떠한 부연 설명도 포함하지 마십시오.\n\n# Input Data\nQuestion: {question}\nAnswer: {answer}\n\n# Output (0 or 1):",
+    "prompts": {
+        "question_generation": {
+            "instruction": "",
+            "examples": []
+        }
+    },
+    "_comments": {
+        "description": "AnswerRelevancy measures if the answer is relevant to the question",
+        "custom_mode_info": "When custom_mode is true, the custom_prompt is used directly instead of RAGAS's approach",
+        "how_to_use": "Set 'enabled' to true and 'custom_mode' to true to use the custom prompt",
+        "output_format": "Returns binary 0 or 1 instead of RAGAS's 0.0-1.0 score"
+    }
+}

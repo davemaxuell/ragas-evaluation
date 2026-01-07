@@ -1,0 +1,11 @@
+{
+    "metric_name": "answer_relevancy",
+    "description": "Measures if the answer is relevant to the question",
+    "prompts": {
+        "question_generation": {
+            "purpose": "Generates questions the answer could address, then compares with original question",
+            "instruction": "Generate a question for the given answer and Identify if answer is noncommittal. Give noncommittal as 1 if the answer is noncommittal and 0 if the answer is committal. A noncommittal answer is one that is evasive, vague, or ambiguous. For example, \"I don't know\" or \"I'm not sure\" are noncommittal answers",
+            "examples_count": 2
+        }
+    }
+}

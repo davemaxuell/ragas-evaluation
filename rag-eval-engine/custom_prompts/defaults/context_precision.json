@@ -1,0 +1,11 @@
+{
+    "metric_name": "context_precision",
+    "description": "Measures if retrieved contexts were useful for answering",
+    "prompts": {
+        "context_precision_prompt": {
+            "purpose": "Determines if each context chunk was useful for generating the answer",
+            "instruction": "Given question, answer and context verify if the context was useful in arriving at the given answer. Give verdict as \"1\" if useful and \"0\" if not with json output.",
+            "examples_count": 3
+        }
+    }
+}

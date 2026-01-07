@@ -1,0 +1,23 @@
+{
+    "metric_name": "answer_correctness",
+    "enabled": true,
+    "custom_mode": true,
+    "language": "korean",
+    "custom_prompt": "# Role\n당신은 RAG(Retrieval-Augmented Generation) 시스템의 답변이 실제 정답(Ground Truth)과 의미적으로 얼마나 일치하는지 문장 단위로 분석하고 평가하는 전문 심사위원입니다.\n\n# Task\n제공된 [Answer]의 각 문장을 [Ground Truth]와 비교하여, 정보의 정확성과 누락 여부를 TP, FP, FN 세 가지 지표로 분류하십시오.\n\n# Evaluation Criteria\n- TP (True Positive): [Answer]의 문장이 [Ground Truth]에 포함된 사실과 일치하며, 올바른 정보를 제공하는 경우.\n- FP (False Positive): [Answer]의 문장이 [Ground Truth]에 없거나, 사실과 다르거나, 근거 없는 정보를 포함하는 경우.\n- FN (False Negative): [Ground Truth]에는 반드시 포함되어야 할 핵심 정보가 [Answer]에서 누락된 경우.\n\n# Rules\n- [Answer]의 각 문장을 개별적으로 분석하여 해당하는 라벨(TP, FP, FN)을 부여하십시오.\n- 주관적인 판단을 배제하고 오직 [Ground Truth]의 내용만을 진실의 근거로 삼으십시오.\n- 반드시 문장별 라벨(TP, FP, FN)만 출력하십시오. 어떠한 부연 설명이나 분석 과정도 포함하지 마십시오.\n\n# Input Data\nAnswer: {answer}\nGround Truth: {ground_truth}\n\n# Output (Labels only):",
+    "prompts": {
+        "statement_generator_prompt": {
+            "instruction": "",
+            "examples": []
+        },
+        "correctness_prompt": {
+            "instruction": "",
+            "examples": []
+        }
+    },
+    "_comments": {
+        "description": "AnswerCorrectness measures if the answer matches the ground truth",
+        "custom_mode_info": "When custom_mode is true, the custom_prompt outputs TP/FP/FN labels and calculates F1 score",
+        "how_to_use": "Set 'enabled' to true and 'custom_mode' to true to use the custom prompt",
+        "output_format": "Returns F1 score (0.0-1.0) calculated from TP, FP, FN counts"
+    }
+}

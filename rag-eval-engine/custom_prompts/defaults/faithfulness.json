@@ -1,0 +1,16 @@
+{
+    "metric_name": "faithfulness",
+    "description": "Measures if the answer is grounded in the retrieved context",
+    "prompts": {
+        "statement_generator_prompt": {
+            "purpose": "Extracts atomic statements from the answer",
+            "instruction": "Given a question and an answer, analyze the complexity of each sentence in the answer. Break down each sentence into one or more fully understandable statements. Ensure that no pronouns are used in any statement. Format the outputs in JSON.",
+            "examples_count": 1
+        },
+        "nli_statements_prompt": {
+            "purpose": "Verifies if each statement is supported by context",
+            "instruction": "Given a context and a statement, analyze each statement and classify them in one of the following categories: Supported - if the statement is directly supported by the context, Not Supported - if the statement is not supported by the context, Noncommittal - if the statement is ambiguous or cannot be determined.",
+            "examples_count": 3
+        }
+    }
+}

@@ -1,0 +1,19 @@
+{
+    "metric_name": "context_precision",
+    "enabled": true,
+    "custom_mode": true,
+    "language": "korean",
+    "custom_prompt": "# Role\n당신은 RAG(Retrieval-Augmented Generation) 시스템에서 검색된 컨텍스트(Context)가 질문에 답변하기 위해 얼마나 유용하고 정확한 정보였는지 평가하는 전문 심사위원입니다.\n\n# Task\n제공된 [Question]과 [Answer]를 바탕으로, 검색된 [Context]가 답변을 생성하는 데 실질적인 근거를 제공했는지 관련성(Context Precision)을 평가하십시오.\n\n# Evaluation Criteria\n- 1 (Pass): [Context] 내에 [Question]에 대한 정답 정보가 포함되어 있으며, [Answer]의 핵심 내용을 도출하는 데 결정적인 근거로 사용된 경우.\n- 0 (Fail): [Context]가 질문과 동떨어진 내용이거나, 답변을 생성하는 데 도움이 되는 유의미한 정보가 포함되지 않은 경우.\n\n# Rules\n- [Context] 내에 질문과 관련된 핵심 키워드나 논리적 근거가 포함되어 있는지 최우선으로 판단하십시오.\n- 답변([Answer])이 잘 작성되었더라도, 그 근거가 [Context]에 없다면 0으로 평가하십시오.\n- 반드시 0 또는 1의 숫자만 출력하십시오. 어떠한 부연 설명도 포함하지 마십시오.\n\n# Input Data\nQuestion: {question}\nAnswer: {answer}\nContext: {context}\n\n# Output (0 or 1):",
+    "prompts": {
+        "context_precision_prompt": {
+            "instruction": "",
+            "examples": []
+        }
+    },
+    "_comments": {
+        "description": "ContextPrecision measures if retrieved contexts were useful for answering",
+        "custom_mode_info": "When custom_mode is true, the custom_prompt is used directly instead of RAGAS's approach",
+        "how_to_use": "Set 'enabled' to true and 'custom_mode' to true to use the custom prompt",
+        "output_format": "Returns binary 0 or 1 instead of RAGAS's 0.0-1.0 score"
+    }
+}

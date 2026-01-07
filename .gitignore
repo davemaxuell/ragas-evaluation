@@ -40,8 +40,8 @@ env/
 
 # Large data files
 *.json
-!custom_prompts/*.json
-!custom_prompts/defaults/*.json
+!rag-eval-engine/custom_prompts/*.json
+!rag-eval-engine/custom_prompts/**/*.json
 
 # Logs
 *.log

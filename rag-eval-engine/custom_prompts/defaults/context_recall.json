@@ -1,0 +1,11 @@
+{
+    "metric_name": "context_recall",
+    "description": "Measures if retrieved contexts contain all needed information from ground truth",
+    "prompts": {
+        "context_recall_prompt": {
+            "purpose": "Checks if ground truth sentences can be attributed to retrieved contexts",
+            "instruction": "Given a context and a set of statements from the ground truth, analyze each statement and classify if it can be attributed to the context. Give verdict as \"1\" if attributable and \"0\" if not.",
+            "examples_count": 2
+        }
+    }
+}
