@@ -156,6 +156,10 @@ python score_json_multiturn.py "path/to/your/data.json"
    - **Retention**: 문맥 유지 여부 확인
    - **Redundancy**: 중복 여부 확인
    - 하나라도 실패하면 0점 부여
+3. **Answer Correctness (Strict & Flexible)**:
+   - **Strict**: 수치(연도, %, 금액)는 정확히 일치해야 함.
+   - **Flexible**: 비교 서술이나 배경 설명이 포함되어도 핵심 수치가 맞으면 인정.
+   - **Output**: F1-Score (0.0 ~ 1.0) 자동 추출.
 ```
 
 **결과 JSON 구조:**

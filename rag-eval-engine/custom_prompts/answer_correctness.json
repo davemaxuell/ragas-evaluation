@@ -3,7 +3,7 @@
     "enabled": true,
     "custom_mode": true,
     "language": "korean",
-    "custom_prompt": "# Role\n당신은 RAG(Retrieval-Augmented Generation) 시스템의 답변이 실제 정답(Ground Truth)과 의미적으로 얼마나 일치하는지 문장 단위로 분석하고 평가하는 전문 심사위원입니다.\n\n# Task\n제공된 [Answer]의 각 문장을 [Ground Truth]와 비교하여, 정보의 정확성과 누락 여부를 TP, FP, FN 세 가지 지표로 분류하십시오.\n\n# Evaluation Criteria\n- TP (True Positive): [Answer]의 문장이 [Ground Truth]에 포함된 사실과 일치하며, 올바른 정보를 제공하는 경우.\n- FP (False Positive): [Answer]의 문장이 [Ground Truth]에 없거나, 사실과 다르거나, 근거 없는 정보를 포함하는 경우.\n- FN (False Negative): [Ground Truth]에는 반드시 포함되어야 할 핵심 정보가 [Answer]에서 누락된 경우.\n\n# Rules\n- [Answer]의 각 문장을 개별적으로 분석하여 해당하는 라벨(TP, FP, FN)을 부여하십시오.\n- 주관적인 판단을 배제하고 오직 [Ground Truth]의 내용만을 진실의 근거로 삼으십시오.\n- 반드시 문장별 라벨(TP, FP, FN)만 출력하십시오. 어떠한 부연 설명이나 분석 과정도 포함하지 마십시오.\n\n# Input Data\nAnswer: {answer}\nGround Truth: {ground_truth}\n\n# Output (Labels only):",
+    "custom_prompt": "# Role\nRAG 시스템의 답변이 정답(Ground Truth)의 핵심 지식을 포함하고 있는지 검증하는 전문 심사위원입니다.\n\n# Task\n[Answer]를 [Ground Truth]와 대조하여 사실적 정확성을 평가하십시오.\n\n# Evaluation Rules (유연성 및 엄격성 기준)\n1. **수치 (Strict)**: 연도, 퍼센트(%), 금액, bp 등 모든 수치는 GT와 일치해야 합니다. 숫자가 틀리거나 시점이 다르면 무조건 0점입니다.\n2. **추론 과정 허용 (Flexible)**: 답변이 정답 수치 외에 'A와 B 중 A가 맞다'는 식의 비교 서술이나 추가적인 배경 설명을 포함하더라도, 최종적으로 GT가 요구하는 수치를 정답으로 제시하고 있다면 TP(일치)로 간주합니다.\n3. **포함 관계 우선**: 답변의 문장 구조가 GT와 다르더라도, GT에 명시된 핵심 사실이 답변 내에 '누락 없이 포함'되어 있다면 긍정적으로 평가하십시오.\n\n# Input Data\n- Question: {question}\n- Ground Truth: {ground_truth}\n- Answer: {answer}\n\n# Output Format\n[Analysis]\n- 수치/시점 일치 여부:\n- 핵심 정보 포함 여부:\n- 추론 과정의 적절성:\n\n[Conclusion]\n(최종 F1-Score: 0.0 ~ 1.0 산출)",
     "prompts": {
         "statement_generator_prompt": {
             "instruction": "",

@@ -11,6 +11,7 @@ RAG 멀티턴 JSON 평가 스크립트
 
 import json
 import os
+import re
 import time
 from datetime import datetime
 import google.generativeai as genai
@@ -232,33 +233,21 @@ def evaluate_answer_correctness(answer: str, ground_truth: str, prompt_template:
             ground_truth=ground_truth
         )
         
-        result_text = call_api_with_retry(formatted_prompt, max_tokens=200).upper()
+        # Reasoning 및 Conclusion 포함되므로 max_tokens 증가
+        result_text = call_api_with_retry(formatted_prompt, max_tokens=500)
         
-        # TP, FP, FN 개수 카운트
-        tp_count = result_text.count("TP")
-        fp_count = result_text.count("FP")
-        fn_count = result_text.count("FN")
+        # F1 Score 추출 (Regex 사용)
+        # 패턴: "(최종 F1-Score: 0.8)" 또는 "F1-Score: 0.8" 등
+        match = re.search(r"F1-Score[:\s]*([0-1]\.\d+|0|1)", result_text, re.IGNORECASE)
         
-        print(f"      [Debug] TP={tp_count}, FP={fp_count}, FN={fn_count}")
-        
-        # 라벨이 하나도 없으면 평가 실패로 간주
-        if tp_count == 0 and fp_count == 0 and fn_count == 0:
-            print(f"      [경고] 라벨 없음 - 응답: {result_text[:100]}")
-            return 0.0  # 라벨 없으면 0점
-        
-        # TP가 0이면 올바른 정보가 없음
-        if tp_count == 0:
-            return 0.0  # 올바른 정보 없음
-        
-        # F1 Score 계산
-        precision = tp_count / (tp_count + fp_count) if (tp_count + fp_count) > 0 else 0.0
-        recall = tp_count / (tp_count + fn_count) if (tp_count + fn_count) > 0 else 0.0
-        
-        if precision + recall == 0:
+        if match:
+            f1_score = float(match.group(1))
+            # 0.0 ~ 1.0 범위 확인
+            return max(0.0, min(1.0, f1_score))
+        else:
+            # 숫자가 명시적으로 없으면 0.0 처리 (Strict)
+            print(f"      [경고] AnswerCorrectness 점수 추출 실패: {result_text[-50:]}")
             return 0.0
-        
-        f1_score = 2 * (precision * recall) / (precision + recall)
-        return round(f1_score, 2)
             
     except Exception as e:
         print(f"    [오류] AnswerCorrectness 평가 실패: {e}")
