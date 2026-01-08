@@ -210,20 +210,29 @@ def evaluate_answer_correctness(question: str, answer: str, ground_truth: str, p
         )
         
         # Reasoning 및 Conclusion 포함되므로 max_tokens 증가
-        result_text = call_api_with_retry(formatted_prompt, max_tokens=500)
+        result_text = call_api_with_retry(formatted_prompt, max_tokens=1000)
         
         # F1 Score 추출 (Regex 사용)
-        # 패턴: "(최종 F1-Score: 0.8)" 또는 "F1-Score: 0.8" 등
-        match = re.search(r"F1-Score[:\s]*([0-1]\.\d+|0|1)", result_text, re.IGNORECASE)
+        # 패턴: "(최종 F1-Score: 0.8)", "F1-Score: 0.8", "Score: 0.8", "0.8" 등
+        # 1. F1-Score 라벨이 있는 경우 우선 검색
+        match = re.search(r"(?:F1[- ]?Score|Score)[:\s]*([0-1]\.\d+|0|1)", result_text, re.IGNORECASE)
         
         if match:
             f1_score = float(match.group(1))
-            # 0.0 ~ 1.0 범위 확인
             return max(0.0, min(1.0, f1_score))
-        else:
-            # 숫자가 명시적으로 없으면 0.0 처리 (Strict)
-            print(f"      [경고] AnswerCorrectness 점수 추출 실패: {result_text[-50:]}")
-            return 0.0
+        
+        # 2. 라벨 없이 결론 부분에 숫자만 있는 경우 검색 (마지막 줄 위주)
+        lines = result_text.strip().split('\n')
+        last_line = lines[-1].strip()
+        match_num = re.search(r"([0-1]\.\d+|0|1)", last_line)
+        
+        if match_num:
+            f1_score = float(match_num.group(1))
+            return max(0.0, min(1.0, f1_score))
+            
+        # 추출 실패
+        print(f"      [경고] AnswerCorrectness 점수 추출 실패 (Length: {len(result_text)}): {result_text[-100:]}")
+        return 0.0
             
     except Exception as e:
         print(f"    [오류] AnswerCorrectness 평가 실패: {e}")
