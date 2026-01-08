@@ -193,10 +193,11 @@ def evaluate_context_recall(question: str, answer: str, context: str, prompt_tem
         return 0
 
 
-def evaluate_answer_correctness(answer: str, ground_truth: str, prompt_template: str) -> float:
+def evaluate_answer_correctness(question: str, answer: str, ground_truth: str, prompt_template: str) -> float:
     """AnswerCorrectness 평가: 답변이 정답과 일치하는가? (F1 score 0.0~1.0)"""
     try:
         formatted_prompt = prompt_template.format(
+            question=question,
             answer=answer,
             ground_truth=ground_truth
         )
@@ -336,7 +337,7 @@ def evaluate_json_file(input_path: str, output_path: str = None):
         context_precision_score = evaluate_context_precision(question, ground_truth, context, context_precision_prompt)
         context_recall_score = evaluate_context_recall(question, ground_truth, context, context_recall_prompt)
         # AnswerCorrectness: RAG_answer와 ground_truth(answer) 비교
-        answer_correctness_score = evaluate_answer_correctness(rag_answer, ground_truth, answer_correctness_prompt)
+        answer_correctness_score = evaluate_answer_correctness(question, rag_answer, ground_truth, answer_correctness_prompt)
         
         # 점수 저장
         turn["scores"] = {
