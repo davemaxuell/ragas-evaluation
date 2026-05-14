@@ -1,5 +1,6 @@
 import os
 import json
+import time
 from typing import List, Dict, Any
 import pandas as pd
 from datasets import Dataset
@@ -21,7 +22,7 @@ from ragas.metrics import (
     AnswerRelevancy,
 )
 
-# OPENAI API 키 로드
+# OPENAI API 키 및 모델 로드
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not OPENAI_API_KEY:
@@ -29,12 +30,36 @@ if not OPENAI_API_KEY:
 else:
     print("[성공] OPENAI API 키 로드 완료.")
 
+OPENAI_MODEL_NAME = os.getenv("OPENAI_MODEL_NAME", "gpt-4o-2024-08-06")
+EMBEDDING_MODEL_NAME = os.getenv("EMBEDDING_MODEL_NAME", "text-embedding-3-small")
+
 # Flask 앱 초기화
 app = Flask(__name__)
 
+# Rate limiting 설정
+API_DELAY_SECONDS = 1
+MAX_RETRIES = 3
+RETRY_DELAY_BASE = 5
+
+
+def call_api_with_retry(api_func, *args, **kwargs):
+    for attempt in range(MAX_RETRIES):
+        try:
+            time.sleep(API_DELAY_SECONDS)
+            return api_func(*args, **kwargs)
+        except Exception as e:
+            error_str = str(e)
+            if "429" in error_str or "rate_limit" in error_str.lower():
+                wait_time = RETRY_DELAY_BASE * (2 ** attempt)
+                print(f"[Rate Limit] {wait_time}초 대기 후 재시도... ({attempt + 1}/{MAX_RETRIES})")
+                time.sleep(wait_time)
+            else:
+                raise
+    raise Exception("최대 재시도 횟수 초과")
+
 # 데이터 파일 상수 정의
-CSV_FILE_PATH = "samples.csv"
-REQUIRED_COLUMNS = ["question", "content", "answer", "ground_truth"]
+CSV_FILE_PATH = "eval_data/test_sample.csv"
+REQUIRED_COLUMNS = ["question", "contents", "answer", "ground_truth"]
 CUSTOM_PROMPTS_DIR = "custom_prompts"
 
 
@@ -120,21 +145,20 @@ def evaluate_faithfulness_custom(question: str, answer: str, context: str, custo
     Returns: 0 또는 1 (이진 결과)
     """
     try:
-        # 프롬프트에 변수 삽입
         formatted_prompt = custom_prompt.format(
             question=question,
             answer=answer,
             context=context
         )
-        
-        # OpenAI API 직접 호출
+
         client = OpenAI(api_key=OPENAI_API_KEY)
-        response = client.chat.completions.create(
-            model="gpt-5-2025-08-07",
-            messages=[{"role": "user", "content": formatted_prompt}],
-            
-            max_completion_tokens=5
-        )
+        def api_call():
+            return client.chat.completions.create(
+                model=OPENAI_MODEL_NAME,
+                messages=[{"role": "user", "content": formatted_prompt}],
+                max_completion_tokens=5
+            )
+        response = call_api_with_retry(api_call)
         
         # 결과 파싱 (0 또는 1만 추출)
         result_text = response.choices[0].message.content.strip()
@@ -192,20 +216,19 @@ def evaluate_answer_relevancy_custom(question: str, answer: str, custom_prompt: 
     Returns: 0 또는 1 (이진 결과)
     """
     try:
-        # 프롬프트에 변수 삽입
         formatted_prompt = custom_prompt.format(
             question=question,
             answer=answer
         )
-        
-        # OpenAI API 직접 호출
+
         client = OpenAI(api_key=OPENAI_API_KEY)
-        response = client.chat.completions.create(
-            model="gpt-5-2025-08-07",
-            messages=[{"role": "user", "content": formatted_prompt}],
-            
-            max_completion_tokens=5
-        )
+        def api_call():
+            return client.chat.completions.create(
+                model=OPENAI_MODEL_NAME,
+                messages=[{"role": "user", "content": formatted_prompt}],
+                max_completion_tokens=5
+            )
+        response = call_api_with_retry(api_call)
         
         # 결과 파싱 (0 또는 1만 추출)
         result_text = response.choices[0].message.content.strip()
@@ -263,21 +286,20 @@ def evaluate_context_precision_custom(question: str, answer: str, context: str, 
     Returns: 0 또는 1 (이진 결과)
     """
     try:
-        # 프롬프트에 변수 삽입
         formatted_prompt = custom_prompt.format(
             question=question,
             answer=answer,
             context=context
         )
-        
-        # OpenAI API 직접 호출
+
         client = OpenAI(api_key=OPENAI_API_KEY)
-        response = client.chat.completions.create(
-            model="gpt-5-2025-08-07",
-            messages=[{"role": "user", "content": formatted_prompt}],
-            
-            max_completion_tokens=5
-        )
+        def api_call():
+            return client.chat.completions.create(
+                model=OPENAI_MODEL_NAME,
+                messages=[{"role": "user", "content": formatted_prompt}],
+                max_completion_tokens=5
+            )
+        response = call_api_with_retry(api_call)
         
         # 결과 파싱 (0 또는 1만 추출)
         result_text = response.choices[0].message.content.strip()
@@ -335,21 +357,20 @@ def evaluate_context_recall_custom(question: str, answer: str, context: str, cus
     Returns: 0 또는 1 (이진 결과)
     """
     try:
-        # 프롬프트에 변수 삽입
         formatted_prompt = custom_prompt.format(
             question=question,
             answer=answer,
             context=context
         )
-        
-        # OpenAI API 직접 호출
+
         client = OpenAI(api_key=OPENAI_API_KEY)
-        response = client.chat.completions.create(
-            model="gpt-5-2025-08-07",
-            messages=[{"role": "user", "content": formatted_prompt}],
-            
-            max_completion_tokens=5
-        )
+        def api_call():
+            return client.chat.completions.create(
+                model=OPENAI_MODEL_NAME,
+                messages=[{"role": "user", "content": formatted_prompt}],
+                max_completion_tokens=5
+            )
+        response = call_api_with_retry(api_call)
         
         # 결과 파싱 (0 또는 1만 추출)
         result_text = response.choices[0].message.content.strip()
@@ -408,20 +429,19 @@ def evaluate_answer_correctness_custom(answer: str, ground_truth: str, custom_pr
     Returns: F1 score (0.0 ~ 1.0)
     """
     try:
-        # 프롬프트에 변수 삽입
         formatted_prompt = custom_prompt.format(
             answer=answer,
             ground_truth=ground_truth
         )
-        
-        # OpenAI API 직접 호출
+
         client = OpenAI(api_key=OPENAI_API_KEY)
-        response = client.chat.completions.create(
-            model="gpt-5-2025-08-07",
-            messages=[{"role": "user", "content": formatted_prompt}],
-            
-            max_completion_tokens=200
-        )
+        def api_call():
+            return client.chat.completions.create(
+                model=OPENAI_MODEL_NAME,
+                messages=[{"role": "user", "content": formatted_prompt}],
+                max_completion_tokens=200
+            )
+        response = call_api_with_retry(api_call)
         
         # 결과 파싱 (TP, FP, FN 개수 추출)
         result_text = response.choices[0].message.content.strip().upper()
@@ -464,9 +484,9 @@ if CUSTOM_ANSWER_CORRECTNESS_MODE:
 print("[초기화] 모델 및 메트릭 설정 중")
 
 try:
-    langchain_llm = ChatOpenAI(model="gpt-5-2025-08-07", api_key=OPENAI_API_KEY)
+    langchain_llm = ChatOpenAI(model=OPENAI_MODEL_NAME, api_key=OPENAI_API_KEY)
     evaluator_llm = LangchainLLMWrapper(langchain_llm)
-    embedding_model = OpenAIEmbeddings(model="text-embedding-3-small", api_key=OPENAI_API_KEY)
+    embedding_model = OpenAIEmbeddings(model=EMBEDDING_MODEL_NAME, api_key=OPENAI_API_KEY)
 
     # 평가 메트릭 초기화 및 커스텀 프롬프트 적용
     context_precision = load_custom_prompts(ContextPrecision(), "context_precision")
@@ -505,7 +525,7 @@ def load_and_prepare_dataset(file_path: str) -> EvaluationDataset:
         )
 
     df = df.rename(columns={
-        "content": "retrieved_contexts",
+        "contents": "retrieved_contexts",
         "answer": "response",
     })
     

@@ -15,13 +15,16 @@ from datetime import datetime
 from openai import OpenAI
 from dotenv import load_dotenv
 
+load_dotenv()
+
 # Rate limiting 설정
 API_DELAY_SECONDS = 2  # API 호출 간 딜레이 (초)
 MAX_RETRIES = 3  # 최대 재시도 횟수
 RETRY_DELAY_BASE = 5  # 재시도 시 기본 대기 시간 (초)
 
-# 두 번째 OpenAI API 키 (별도 rate limit)
-OPENAI_API_KEY = "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"
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+if not OPENAI_API_KEY:
+    raise ValueError("[오류] .env 파일에 OPENAI_API_KEY가 설정되지 않았습니다.")
 
 # OpenAI 클라이언트
 client = OpenAI(api_key=OPENAI_API_KEY)
@@ -245,23 +248,23 @@ def evaluate_answer_correctness(answer: str, ground_truth: str, prompt_template:
         fn_count = result_text.count("FN")
         
         if tp_count == 0 and fp_count == 0 and fn_count == 0:
-            return 1.0
-        
+            return 0.0
+
         if tp_count == 0:
-            return 1.0
-        
-        precision = tp_count / (tp_count + fp_count) if (tp_count + fp_count) > 0 else 1.0
-        recall = tp_count / (tp_count + fn_count) if (tp_count + fn_count) > 0 else 1.0
-        
+            return 0.0
+
+        precision = tp_count / (tp_count + fp_count) if (tp_count + fp_count) > 0 else 0.0
+        recall = tp_count / (tp_count + fn_count) if (tp_count + fn_count) > 0 else 0.0
+
         if precision + recall == 0:
-            return 1.0
-        
+            return 0.0
+
         f1_score = 2 * (precision * recall) / (precision + recall)
         return round(f1_score, 2)
-            
+
     except Exception as e:
         print(f"    [오류] AnswerCorrectness 평가 실패: {e}")
-        return 1.0
+        return 0.0
 
 
 def evaluate_aspect_critic(turns: list) -> int:
@@ -434,7 +437,7 @@ def evaluate_json_file(input_path: str, output_path: str = None):
             # 각 메트릭 평가 (RAG_answer를 평가 대상으로, answer를 ground_truth로 사용)
             f_score = evaluate_faithfulness(question, rag_answer, context, faithfulness_prompt)
             ar_score = evaluate_answer_relevancy(question, rag_answer, answer_relevancy_prompt)
-            cp_score = evaluate_context_precision(question, ground_truth, context, context_precision_prompt)
+            cp_score = evaluate_context_precision(question, rag_answer, context, context_precision_prompt)
             cr_score = evaluate_context_recall(question, ground_truth, context, context_recall_prompt)
             # AnswerCorrectness: RAG_answer와 ground_truth(answer) 비교
             ac_score = evaluate_answer_correctness(rag_answer, ground_truth, answer_correctness_prompt)

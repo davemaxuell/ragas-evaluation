@@ -14,6 +14,7 @@ import sys
 import time
 from datetime import datetime
 from dotenv import load_dotenv
+import pandas as pd
 
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from openai import OpenAI
@@ -246,7 +247,6 @@ def evaluate_json_file(input_path: str, output_path: str = None):
         row = results_df.iloc[sample_idx]
         
         # 점수 추출 (NaN 처리)
-        import pandas as pd
         scores = {
             "faithfulness": round(float(row.get("faithfulness", 0)), 3) if not pd.isna(row.get("faithfulness")) else 0.0,
             "answer_relevancy": round(float(row.get("answer_relevancy", 0)), 3) if not pd.isna(row.get("answer_relevancy")) else 0.0,

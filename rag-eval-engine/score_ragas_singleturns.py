@@ -12,6 +12,7 @@ import os
 import sys
 from datetime import datetime
 from dotenv import load_dotenv
+import pandas as pd
 
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from ragas import evaluate
@@ -240,8 +241,6 @@ def evaluate_json_file(input_path: str, output_path: str = None):
 # ============================================================
 
 if __name__ == "__main__":
-    import pandas as pd
-    
     # 기본 입력 파일 경로
     default_input = os.path.join(
         os.path.dirname(os.path.dirname(__file__)),

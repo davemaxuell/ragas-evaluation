@@ -343,7 +343,7 @@ def evaluate_json_file(input_path: str, output_path: str = None):
         # 각 메트릭 평가 (RAG_answer를 평가 대상으로, answer를 ground_truth로 사용)
         faithfulness_score = evaluate_faithfulness(question, rag_answer, context, faithfulness_prompt)
         answer_relevancy_score = evaluate_answer_relevancy(question, rag_answer, answer_relevancy_prompt)
-        context_precision_score = evaluate_context_precision(question, ground_truth, context, context_precision_prompt)
+        context_precision_score = evaluate_context_precision(question, rag_answer, context, context_precision_prompt)
         context_recall_score = evaluate_context_recall(question, ground_truth, context, context_recall_prompt)
         # AnswerCorrectness: RAG_answer와 ground_truth(answer) 비교
         answer_correctness_score = evaluate_answer_correctness(question, rag_answer, ground_truth, answer_correctness_prompt)

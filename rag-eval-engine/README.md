@@ -21,8 +21,9 @@ rag-eval-engine/
 ├── score_json.py             # 🆕 JSON 파일 직접 평가 (Single-turn)
 ├── score_json_multiturn.py   # 🆕 JSON 파일 직접 평가 (Multi-turn + AspectCritic)
 ├── requirements.txt          # 필수 라이브러리 목록
-├── samples.csv               # 평가 데이터셋 샘플
-├── .env                      # API 키 설정 (Gemini/OpenAI)
+├── .env.example              # API 키 템플릿 (.env로 복사 후 입력)
+├── eval_data/                # 평가 데이터셋 폴더 (git 제외 — 직접 준비)
+│   └── test_sample.csv
 │
 ├── custom_prompts/           # 커스텀 프롬프트 설정
 │   ├── README.md             # 커스텀 프롬프트 사용법
@@ -60,14 +61,17 @@ pip install -r requirements.txt
 
 ### 2. API 키 설정
 
-`.env` 파일 생성:
-```dotenv
-# Gemini API (score_json.py, score_json_multiturn.py용)
-GEMINI_API_KEY="YOUR_GEMINI_API_KEY_HERE"
-GEMINI_MODEL_NAME="gemini-2.0-flash"  # 선택사항, 기본값: gemini-2.0-flash
+`.env.example`을 복사하여 `.env` 파일 생성 후 키 입력:
+```bash
+cp .env.example .env
+```
 
-# OpenAI API (api.py용)
-OPENAI_API_KEY="YOUR_OPENAI_API_KEY_HERE"
+```dotenv
+OPENAI_API_KEY=your-openai-api-key-here
+OPENAI_MODEL_NAME=gpt-4o-2024-08-06
+EMBEDDING_MODEL_NAME=text-embedding-3-small
+GEMINI_API_KEY=your-gemini-api-key-here
+GEMINI_MODEL_NAME=gemini-2.5-flash
 ```
 
 ### 3. 서버 실행
@@ -308,7 +312,7 @@ python inspect_answer_relevancy.py
 | 컬럼명 | 설명 |
 |--------|------|
 | `question` | 사용자 질문 |
-| `content` | 검색된 컨텍스트 |
+| `contents` | 검색된 컨텍스트 |
 | `answer` | RAG 시스템 답변 |
 | `ground_truth` | 정답 |
 
@@ -350,16 +354,16 @@ GEMINI_MODEL_NAME=gemini-2.0-flash
 
 ### OpenAI 모델 (api.py)
 
-| 용도 | 모델 |
+| 용도 | 기본 모델 |
 |------|------|
-| 평가자 LLM | `gpt-4o-mini` |
+| 평가자 LLM | `gpt-4o-2024-08-06` |
 | 임베딩 | `text-embedding-3-small` |
 
-`api.py`에서 변경 가능:
+`.env`에서 변경:
 
-```python
-langchain_llm = ChatOpenAI(model="gpt-4o-mini", api_key=OPENAI_API_KEY)
-embedding_model = OpenAIEmbeddings(model="text-embedding-3-small", api_key=OPENAI_API_KEY)
+```dotenv
+OPENAI_MODEL_NAME=gpt-4o-2024-08-06
+EMBEDDING_MODEL_NAME=text-embedding-3-small
 ```
 
 ---

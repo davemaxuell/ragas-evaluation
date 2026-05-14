@@ -43,6 +43,10 @@ env/
 !rag-eval-engine/custom_prompts/*.json
 !rag-eval-engine/custom_prompts/**/*.json
 
+# Evaluation datasets (proprietary, do not commit)
+eval_data/
+*.csv
+
 # Logs
 *.log
 
